@@ -1,0 +1,100 @@
+#define CC_REVERB 91
+#define CC_DELAY 94
+#define CC_VOLUME 7
+#uselib "winmm.dll"
+#module MIDITOOLS
+	#cfunc timeGetTime "timeGetTime"
+	#func midiOutOpen "midiOutOpen" var,int,nullptr,nullptr,nullptr
+	#func midiOutShortMsg "midiOutShortMsg" int,int
+	#func midiOutReset "midiOutReset" int
+	#func midiOutClose "midiOutClose" int
+	#cfunc midiOutGetNumDevs "midiOutGetNumDevs"
+	#func midiOutGetDevCaps "midiOutGetDevCapsA" int,var,int
+	
+	
+	#deffunc keybdTurnOn int devicenumber
+		dim midi_uuid
+		midiOutOpen midi_uuid,devicenumber
+	return stat
+	
+	#deffunc  keybdNoteOn int channel,int note,int velocity
+		midiOutShortMsg midi_uuid,((9<<4) | channel | (note<<8) | (velocity<<16))
+	return 0
+	
+	#deffunc  keybdCommand int status,int channel,int data1,int data2
+		midiOutShortMsg midi_uuid,((status<<4) | channel | (data1<<8) | (data2<<16))
+	return 0
+	
+	#deffunc  keybdProgramChange int channel,int program,int data2
+		midiOutShortMsg midi_uuid,((12<<4) | channel | (program<<8) | (data2<<16))
+	return 0
+	
+	#deffunc  keybdSpecificControl int channel,int data1,int data2
+		midiOutShortMsg midi_uuid,((11<<4) | channel | (data1<<8) | (data2<<16))
+	return 0
+	
+	#deffunc  keybdNoteOff int channel,int data1
+		keybdNoteOn channel,data1,0
+	return 0
+	
+	#deffunc keybdForceReset
+		midiOutReset midi_uuid
+	return stat
+	
+	#deffunc keybdTurnOff
+		midiOutClose midi_uuid
+	return stat
+	
+	#defcfunc countKeybd
+	return midiOutGetNumDevs()
+	
+	#deffunc resetTimer int offset
+		dim winmmtimer
+		winmmtimer=timeGetTime()-offset
+	return 0
+	
+	#defcfunc valueOfTimer
+	return  timeGetTime()-winmmtimer
+	
+	#defcfunc keybdName int devicenumber
+		sdim midioutcaps,52
+		dupptr nm,varptr(midioutcaps)+8,32,2
+		midiOutGetDevCaps@MIDITOOLS devicenumber,midioutcaps,52
+	return nm
+	#defcfunc toneName2Height str tonename
+		sdim tn,8
+		tn=tonename
+		dim toct
+		dim tspec
+		dim tadj
+		if tn=""{
+			return -1
+		}
+		if       peek(tn,0)='N'{
+			return -1
+		}else:if peek(tn,0)='-'{
+			tadj=-1
+		}else:if peek(tn,0)='+'{
+			tadj=1
+		}else{
+			tadj=0
+		}
+		
+		if       peek(tn,1)='C'{
+			tspec=0
+		}else:if peek(tn,1)='D'{
+			tspec=2
+		}else:if peek(tn,1)='E'{
+			tspec=4
+		}else:if peek(tn,1)='F'{
+			tspec=5
+		}else:if peek(tn,1)='G'{
+			tspec=7
+		}else:if peek(tn,1)='A'{
+			tspec=9
+		}else:if peek(tn,1)='B'{
+			tspec=11
+		}
+		toct=int(peek(tn,2)-'0')
+	return toct*12+tspec+tadj
+#global

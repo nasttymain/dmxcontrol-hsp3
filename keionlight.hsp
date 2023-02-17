@@ -1,0 +1,26 @@
+#module keionlight
+	#deffunc set_led int color_code
+		dmx_setparam 1,( color_code & $FF0000 ) / 65536
+		dmx_setparam 2,( color_code & $00FF00 ) / 256
+		dmx_setparam 3,( color_code & $0000FF ) / 1
+	return 0
+	#deffunc set_trafsig int color_code, int pattern
+		repeat 4
+			dmx_setparam 97+cnt*3,( color_code & $FF0000 ) / 65536 * ( (pattern & 8 / powf(2,cnt) ) != 0)
+			dmx_setparam 98+cnt*3,( color_code & $00FF00 ) /   256 * ( (pattern & 8 / powf(2,cnt) ) != 0)
+			dmx_setparam 99+cnt*3,( color_code & $0000FF ) /     1 * ( (pattern & 8 / powf(2,cnt) ) != 0)
+		loop
+		dmx_setparam 111,255
+	return 0
+	#deffunc set_mirror int color_code
+		dmx_setparam 70,255
+		
+		dmx_setparam 66,( color_code & $FF0000 ) / 65536
+		dmx_setparam 67,( color_code & $00FF00 ) / 256
+		dmx_setparam 68,( color_code & $0000FF ) / 1
+		dmx_setparam 69,0
+		
+		dmx_setparam 65,64
+		
+	return 0
+#global

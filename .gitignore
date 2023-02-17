@@ -1,0 +1,14 @@
+hsptmp
+obj
+packfile
+start.ax
+*/hsptmp
+*/obj
+*/packfile
+*/start.ax
+*.exe
+*/*.exe
+practice/
+practice/*
+hspext.dll
+*/hspext.dll

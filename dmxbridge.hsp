@@ -1,0 +1,65 @@
+#include "hspext.as"
+#define global DMXBRIDGE_DO_LOGMES 0
+
+#module mod_dmxbridge
+	#deffunc dmx_initialize int comport_number, int baudrate
+		dim cnum
+		cnum=comport_number
+		dim br
+		br=baudrate
+		dim cs
+		dim param,256
+		comopen@ cnum,"baud="+br+" parity=N data=8 stop=1"
+		#if DMXBRIDGE_DO_LOGMES = 1
+			logmes "[DMXBRIDGE] ComOpen(COM"+cnum+") : "+stat
+		#endif
+	return stat
+	#deffunc dmx_setparam int channel, int data
+		if channel<0 | channel>255{
+			return 1
+		}
+		if data<0 | data>255{
+			return 1
+		}
+		param(channel)=data
+		cs=( ((address+data)& %11110000)/16 + (address+data)& %00001111 ) \16
+		computc@ %00010000+cs
+		computc@ channel
+		computc@ data
+		#if DMXBRIDGE_DO_LOGMES = 1
+			logmes strf("[DMXBRIDGE] Send Channel=%3d, Data=%3d",channel,data)
+		#endif
+	return 0
+	#deffunc dmx_setparamByField var field_text
+		notesel field_text
+		sdim fline,256
+		dim fch
+		dim fparam
+		repeat notemax
+			noteget fline, cnt
+			split fline, " ", fch, fparam
+			if fch=0:continue
+			dmx_setparam int(fch), int(fparam)
+		loop
+	return 0
+	#define global dmx_setcolor(%1, %2) dmx_setparam %1,(%2)/65536 %c dmx_setparam %1+1,(%2)\65536/256 %c dmx_setparam %1+2,(%2)\256
+	#define global ctype dmx_param(%1) (param@mod_dmxbridge(%1))
+	#deffunc dmx_close
+		comclose@
+		#if DMXBRIDGE_DO_LOGMES = 1
+			logmes "[DMXBRIDGE] ComClose(COM"+cnum+") : "+stat
+		#endif
+	return 0
+#global
+/******************************************************************************************************************************
+#module mod_dmxbridge
+
+	#deffunc dmx_initialize int comport_number, int baudrate
+	#deffunc dmx_setparam int channel, int data
+	#deffunc dmx_setparamByField var field_text
+	#deffunc dmx_close
+
+	#define global dmx_setcolor(%1, %2) dmx_setparam %1,(%2)/65536 %c dmx_setparam %1+1,(%2)\65536/256 %c dmx_setparam %1+2,(%2)\256
+	#define global ctype dmx_param(%1) (param@mod_dmxbridge(%1))
+
+******************************************************************************************************************************/

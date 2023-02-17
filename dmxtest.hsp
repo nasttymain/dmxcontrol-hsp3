@@ -1,0 +1,78 @@
+#packopt runtime "hsp3cl"
+#runtime "hsp3cl"
+#include "hspext.as"
+#packopt name "testsender.exe"
+onexit goto *proc_quit
+mes "Target: Arduino Bridge with DMX Shield
+mes "Format: pppp cccc  aaaa aaaa  dddd dddd"
+comopen 4,"baud=38400 parity=N data=8 stop=1"
+if stat!=0{
+	mes "Com? "+stat
+	end
+}
+sdim b,256
+sdim e,16,2
+dim r
+dim pnum
+dim csum
+dim s,4
+repeat 1
+	comgetc r
+	if stat!=0{
+		if cnt=0{
+			mes "Flush: 0x",1
+		}
+		mes strf("%02X ",r),1
+		continue 0
+	}
+	await 10
+loop
+
+repeat
+	mes "OK"
+	input b,256,1
+	repeat
+		strrep b,"  "," "
+		if stat=0:break
+	loop
+	b=strtrim(b,0,' ')
+	split b," ",e
+	if int(e(0))<0 | int(e(0))>=256{
+		mes "Address?"
+		continue
+	}
+	if int(e(1))<0 | int(e(1))>=256{
+		mes "Data?"
+		continue
+	}
+	pnum=((pnum)\15)+1
+	csum=(((int(e(0))+int(e(1)))& %11110000)/16 + ((int(e(0))+int(e(1)))& %00001111))\16
+	h=(pnum<<4)+csum
+	computc h
+	computc int(e(0))
+	computc int(e(1))
+	mes "SEND: "+strf("%02X ",h)+" "+strf("%02X ",int(e(0)))+" "+strf("%02X ",int(e(1)))
+	await 100
+	mes "R: 0x",1
+	repeat 1
+		comgetc r
+		if stat!=0{
+			break
+		}
+		await 10
+	loop
+	repeat
+		mes strf("%02X ",r),1
+		comgetc r
+		if stat=0{
+			break
+		}
+		await 10
+	loop
+loop
+
+stop
+
+*proc_quit
+	comclose
+	end

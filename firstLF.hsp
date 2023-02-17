@@ -1,0 +1,336 @@
+#include "dmxbridge.hsp"
+#include "midiapi23.hsp"
+#include "keionlight.hsp"
+#packopt hide 1
+#packopt name "FirstLF.exe"
+*dmxinit
+	dmx_initialize 4, 38400
+	dmxstat=stat
+	dmx_setparam 111, 255
+	dmx_setparam 70, 255
+	dmx_setparam 65, 64
+	wait 25
+*init
+	screen 0,360,360
+	title ""
+	dim led,3
+	dim trafsig,12
+	dim mirror,3
+	
+	ddim transition_progress
+	transition_progress=1.0
+	ddim transition_speed
+	transition_speed=0.00064
+	
+	dim flip
+	flip=0
+	
+	dim led_t,3
+	dim trafsig_t,12
+	dim mirror_t,3
+	
+	dim led_b,3
+	dim trafsig_b,12
+	dim mirror_b,3
+	
+	dim sellist,4
+	sellist(0)=0,0,0,0
+	dim seli
+	
+	dim cpal,13,2
+	cpal(0,0)= $000000, $FF0000, $00FF00, $0000FF, $FFFFFF, $FF6688, WTF, $FF0000, $00FF00, $0000FF, $FF5500, $FFFF00, $FF00FF
+	cpal(0,1)= $000000, $FF0000, $00FF00, $0000FF, $FFFFFF, $FF6688, WTF, $FFFF00, $00FFFF, $FF00FF, $FF5500, $FFFF00, $FF00FF
+	cls 4
+	repeat length(cpal)-1
+		rgbcolor cpal(cnt+1,0)
+		boxf 40*(cnt\6),40*(cnt/6)+ 0,40*(cnt\6)+39,40*(cnt/6)+19
+		rgbcolor cpal(cnt+1,1)
+		boxf 40*(cnt\6),40*(cnt/6)+ 20,40*(cnt\6)+39,40*(cnt/6)+39
+	loop
+	if dmxstat!=0{
+		font msgothic,20,FONT_BOLD
+		pos 0,120
+		color 255,64,64
+		mes "[WARN] DMX STATUS: FAIL("+dmxstat+")"
+	}
+	wait 300
+	dim blackout
+	blackout=1
+	dim cselect
+	cselect=7
+	
+	//[ms]
+	dim pat_interval
+	pat_interval=500
+	ddim pat_offset
+	pat_offset=0.0
+	
+	//送信タイミング制御
+	dim sendtimer
+	sendtimer=gettime(7)
+	
+*main
+	onkey gosub *event_ky
+	repeat
+		gosub *proc_pat
+		gosub *proc_trans
+		gosub *draw_ui
+		await 4
+	loop
+*proc_trans
+	if transition_progress!=1.0{
+		transition_progress+=double(valueOfTimer())*transition_speed
+		if transition_progress>=1.0 | transition_progress<0.0{
+			transition_progress=1.0
+		}
+		repeat 3
+			led(cnt)=limit( transition_progress*led_t(cnt)+(1.0-transition_progress)*led_b(cnt) ,0,255)
+			mirror(cnt)=limit( transition_progress*mirror_t(cnt)+(1.0-transition_progress)*mirror_b(cnt) ,0,255)
+		loop
+		repeat 12
+			trafsig(cnt)=limit( transition_progress*trafsig_t(cnt)+(1.0-transition_progress)*trafsig_b(cnt) ,0,255)
+		loop
+		if (gettime(7)+10000-sendtimer)\10000>25{
+			sendtimer=gettime(7)
+			set_led led(0)*65536+ led(1)*256+ led(2)
+			set_mirror mirror(0)*65536+ mirror(1)*256+ mirror(2)
+			repeat 12
+				dmx_setparam 97+cnt, trafsig(cnt)
+			loop
+		}
+		if transition_progress=1.0{
+			set_led led(0)*65536+ led(1)*256+ led(2)
+			set_mirror mirror(0)*65536+ mirror(1)*256+ mirror(2)
+			repeat 12
+				dmx_setparam 97+cnt, trafsig(cnt)
+			loop
+		}
+	}else{
+	}
+	return
+*proc_pat
+	if valueOfTimer()+pat_offset>pat_interval{
+		pat_offset=(valueOfTimer()+pat_offset)\pat_interval
+		//next pattern
+		
+		flip++
+		
+		if flip=0{
+			
+		}
+		if flip\4=0{
+			seli=(seli+1)\4
+			if sellist(seli)=0{
+				seli=0
+			}else{
+			}
+			cselect=sellist(seli)
+		}
+		newc=cpal(cselect,flip\2)
+		if blackout=1{
+			repeat 3
+				led_t(cnt)=0
+				mirror_t(cnt)=0
+			loop
+			repeat 12
+				trafsig_t(cnt)=0
+			loop
+		}else{
+			led_t(0)=newc/65536
+			led_t(1)=newc\65536/256
+			led_t(2)=newc\256
+			mirror_t(0)=newc/65536
+			mirror_t(1)=newc\65536/256
+			mirror_t(2)=newc\256
+			repeat 4
+				if (cnt\2)=flip\2{
+					trafsig_t(3*cnt+0)=newc/65536
+					trafsig_t(3*cnt+1)=newc\65536/256
+					trafsig_t(3*cnt+2)=newc\256
+				}else{
+					trafsig_t(3*cnt+0)=0
+					trafsig_t(3*cnt+1)=0
+					trafsig_t(3*cnt+2)=0
+				}
+			loop
+		}
+		
+		repeat 3
+			led_b(cnt)=led(cnt)
+			mirror_b(cnt)=mirror(cnt)
+		loop
+		repeat 12
+			trafsig_b(cnt)=trafsig(cnt)
+		loop
+		transition_progress=0.0
+		
+		
+		resettimer
+	}
+	return
+*draw_ui
+	redraw 0
+	color 64,64,64
+	boxf
+	
+	font msgothic,20
+	
+	color 127,127,127
+	boxf 10,10,350,350
+	color 64,64,64
+	boxf 11,11,349,349
+	
+	
+	pos 20,20
+	color 240,240,240
+	mes "LED     "
+	color led(0), led(1), led(2)
+	boxf 110,20,130,40
+	pos 20,60
+	color 240,240,240
+	mes "TRAFSIG "
+	repeat 4
+		color trafsig(cnt*3+0), trafsig(cnt*3+1), trafsig(cnt*3+2)
+		boxf 110+40*cnt,60,130+40*cnt,80
+	loop
+	pos 20,100
+	color 240,240,240
+	mes "MIRROR  "
+	color mirror(0), mirror(1), mirror(2)
+	boxf 110,100,130,120
+	
+	pos 20,140
+	color 240,240,240
+	mes "SEQ     ",1
+	repeat 4
+		if sellist(cnt)!=0{
+			mes ""+strf("%2d",sellist(cnt))+" ",1
+		}
+	loop
+	pos 220,140
+	mes "("+strf("%2d",sellist(seli)),1
+	repeat 4
+		if cnt=flip\4{
+			if transition_progress!=1.0{
+				mes "-",1
+			}else{
+				mes "*",1
+			}
+		}else{
+			mes ".",1
+		}
+	loop
+	mes ")"
+	
+	pos 20,180
+	color 240,240,240
+	if blackout=1{
+		mes "ALL AVL "+"LIGHTS OFF"
+	}else{
+		mes "ALL AVL "+"ENABLE"
+	}
+	
+	pos 20,220
+	mes "INTERV  "+strf("%1d.%.3d",pat_interval/1000,pat_interval\1000)+" ↑SLOW   ↓FAST"
+	pos 20,260
+	mes "FADE    "+strf("%4d",transition_speed*100000)+"  ←SLOW   →FAST"
+	
+	color 127,127,127
+	line 92,20,92,340
+	
+	redraw 1
+	return
+*event_ky
+	if wparam=13{
+		//Enter blackout
+		blackout=(blackout+1)\2
+	}
+	if wparam='1'{
+		sellist_control 1
+	}
+	if wparam='2'{
+		sellist_control 2
+	}
+	if wparam='3'{
+		sellist_control 3
+	}
+	if wparam='4'{
+		sellist_control 4
+	}
+	if wparam='5'{
+		sellist_control 5
+	}
+	if wparam='6'{
+		sellist_control 6
+	}
+
+	if wparam='Q'{
+		sellist_control 7
+	}
+	if wparam='W'{
+		sellist_control 8
+	}
+	if wparam='E'{
+		sellist_control 9
+	}
+	if wparam='R'{
+		sellist_control 10
+	}
+	if wparam='T'{
+		sellist_control 11
+	}
+	if wparam='Y'{
+		sellist_control 12
+	}
+	if wparam=38{
+		//↑
+		pat_interval+=20
+	}
+	if wparam=40{
+		//↓
+		pat_interval-=20
+	}
+	if wparam=33{
+		//PgUp
+		pat_interval+=200
+	}
+	if wparam=34{
+		//PgDn
+		pat_interval-=200
+	}
+	if wparam=37{
+		transition_speed/=2
+	}
+	if wparam=39{
+		transition_speed*=2
+	}
+	pat_interval=limit(pat_interval,20,3000)
+	transition_speed=limitf(transition_speed, 0.00001, 0.16384)
+	return
+
+#deffunc sellist_control int cid
+	psl_f=-1
+	repeat length(sellist)
+		if sellist(cnt)=cid{
+			psl_f=-1
+			lcnt=cnt
+			repeat length(sellist)-1-lcnt, 1+lcnt
+				sellist(cnt-1)=sellist(cnt)
+			loop
+			sellist(3)=0
+			break
+		}
+		if sellist(cnt)=0{
+			if cnt=0{
+				cselect=sellist(seli)
+			}
+			psl_f=cnt
+			break
+		}
+	loop
+	if psl_f=-1{
+		return
+	}
+	sellist(psl_f)=cid
+	
+return

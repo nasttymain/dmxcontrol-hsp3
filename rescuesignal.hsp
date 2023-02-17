@@ -1,0 +1,15 @@
+#include "dmxbridge.hsp"
+#include "midiapi23.hsp"
+#include "keionlight.hsp"
+currentsig=0
+dmx_initialize 4, 38400
+repeat
+	stick ky,16
+	if (ky&16)/16 != currentsig{
+		currentsig=(ky&16)/16
+		set_led $FFFFFF*currentsig
+		set_mball $FFFFFF*currentsig
+		set_trafsig $FFFFFF*currentsig, $F
+	}
+	await 16
+loop
