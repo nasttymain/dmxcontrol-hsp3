@@ -284,11 +284,11 @@
 	}
 	if wparam=38{
 		//ª
-		pat_interval+=20
+		pat_interval+=10
 	}
 	if wparam=40{
 		//«
-		pat_interval-=20
+		pat_interval-=10
 	}
 	if wparam=33{
 		//PgUp
