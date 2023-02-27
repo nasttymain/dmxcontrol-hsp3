@@ -13,6 +13,8 @@
 *init
 	screen 0,360,360
 	title ""
+	font msgothic,20,FONT_BOLD
+	
 	dim led,3
 	dim trafsig,12
 	dim mirror,3
@@ -47,12 +49,18 @@
 		rgbcolor cpal(cnt+1,1)
 		boxf 40*(cnt\6),40*(cnt/6)+ 20,40*(cnt\6)+39,40*(cnt/6)+39
 	loop
+	pos 0,120
 	if dmxstat!=0{
-		font msgothic,20,FONT_BOLD
-		pos 0,120
 		color 255,64,64
-		mes "[WARN] DMX STATUS: FAIL("+dmxstat+")"
+		mes "[WARN] DMX STATUS: FAIL("+dmxstat+")\n"
 	}
+	
+	//display usage
+	color 255, 255, 255
+	mes " ENTER      : BLACKOUT"
+	mes " UP/DN ARROW: SPEED"
+	mes " LF/RI ARROW: FADE"
+	
 	wait 300
 	dim blackout
 	blackout=1
