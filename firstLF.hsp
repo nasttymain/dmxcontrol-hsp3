@@ -240,7 +240,7 @@
 	}
 	
 	pos 20,220
-	mes "INTERV  "+strf("%1d.%.3d",pat_interval/1000,pat_interval\1000)+" ªSLOW   «FAST"
+	mes "INTERV  "+strf("%1d.%.3d",pat_interval/1000,pat_interval\1000)+" «SLOW   ªFAST"
 	pos 20,300
 	mes "FADE    "+strf("%5d",transition_speed*100000)+" ©SLOW   ¨FAST"
 
@@ -296,11 +296,11 @@
 	}
 	if wparam=38{
 		//ª
-		pat_interval+=10
+		pat_interval-=10
 	}
 	if wparam=40{
 		//«
-		pat_interval-=10
+		pat_interval+=10
 	}
 	if wparam=33{
 		//PgUp
