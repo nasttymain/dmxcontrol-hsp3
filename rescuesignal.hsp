@@ -8,7 +8,7 @@ repeat
 	if (ky&16)/16 != currentsig{
 		currentsig=(ky&16)/16
 		set_led $FFFFFF*currentsig
-		set_mball $FFFFFF*currentsig
+		set_mirror $FFFFFF*currentsig
 		set_trafsig $FFFFFF*currentsig, $F
 	}
 	await 16
