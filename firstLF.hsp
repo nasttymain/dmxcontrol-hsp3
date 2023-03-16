@@ -304,11 +304,11 @@
 	}
 	if wparam=33{
 		//PgUp
-		pat_interval+=200
+		pat_interval-=100
 	}
 	if wparam=34{
 		//PgDn
-		pat_interval-=200
+		pat_interval+=100
 	}
 	if wparam=37{
 		transition_speed/=2
