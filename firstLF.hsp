@@ -3,8 +3,10 @@
 #include "keionlight.hsp"
 #packopt hide 1
 #packopt name "FirstLF.exe"
+
+#define ABDS_PORT 4
 *dmxinit
-	dmx_initialize 4, 38400
+	dmx_initialize ABDS_PORT, 38400
 	dmxstat=stat
 	dmx_setparam 111, 255
 	dmx_setparam 70, 255
