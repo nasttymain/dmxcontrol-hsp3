@@ -30,6 +30,9 @@
 	ddim transition_speed
 	transition_speed=0.00064
 	
+	dim comstatus
+	comstatus = 0
+	
 	dim flip
 	flip=0
 	
@@ -60,6 +63,7 @@
 		font msgothic,20,FONT_BOLD
 		color 255,64,64
 		mes "[WARN] DMX STATUS: FAIL("+dmxstat+")"
+		comstatus = 1
 	}
 	
 	//display usage
@@ -67,8 +71,13 @@
 	mes " ENTER      : BLACKOUT"
 	mes " UP/DN ARROW: SPEED"
 	mes " LF/RI ARROW: FADE"
-	
-	wait 300
+
+	if comstatus = 0{
+		wait 300
+	}
+	if comstatus = 1{
+		wait 500
+	}
 	dim blackout
 	blackout=1
 	dim cselect
