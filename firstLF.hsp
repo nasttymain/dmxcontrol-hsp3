@@ -89,7 +89,12 @@
 	repeat
 		gosub *proc_pat
 		gosub *proc_trans
+		gsel 0
+		redraw 0
 		gosub *draw_ui
+		gosub *draw_overlay
+		gsel 0
+		redraw 1
 		await 4
 	loop
 *proc_trans
@@ -184,7 +189,6 @@
 	}
 	return
 *draw_ui
-	redraw 0
 	color 64,64,64
 	boxf
 	
@@ -256,7 +260,6 @@
 	color 127,127,127
 	line 92,20,92,340
 	
-	redraw 1
 	return
 *event_ky
 	if wparam=13{
@@ -324,6 +327,23 @@
 	}
 	pat_interval=limit(pat_interval,20,3000)
 	transition_speed=limitf(transition_speed, 0.00001, 0.16384)
+	return
+
+*draw_overlay
+	if ginfo_act = -1{
+		rgbcolor $404040
+		gmode 3, 32, 32, 232
+		grect ginfo_winx/2, ginfo_winy/2, 0.0, ginfo_winx*2/3 + 2, ginfo_winy*1/2 + 2
+		rgbcolor $FF4444
+		line ginfo_winx*1/6, ginfo_winy*1/4, ginfo_winx*1/6, ginfo_winy*3/4
+		line ginfo_winx*1/6, ginfo_winy*1/4, ginfo_winx*5/6, ginfo_winy*1/4
+		line ginfo_winx*5/6, ginfo_winy*1/4, ginfo_winx*5/6, ginfo_winy*3/4
+		line ginfo_winx*1/6, ginfo_winy*3/4, ginfo_winx*5/6, ginfo_winy*3/4
+		rgbcolor $FF4444
+		pos ginfo_winx/2 - 44, ginfo_winy/2 - 10
+		font msgothic,20, FONT_BOLD
+		mes "INACTIVE"
+	}
 	return
 
 #deffunc sellist_control int cid
