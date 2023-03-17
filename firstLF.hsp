@@ -4,7 +4,11 @@
 #packopt hide 1
 #packopt name "FirstLF.exe"
 
+
+//ポート番号(「USB Serial COM?」 の ?)
 #define ABDS_PORT 4
+
+
 *dmxinit
 	dmx_initialize ABDS_PORT, 38400
 	dmxstat=stat
