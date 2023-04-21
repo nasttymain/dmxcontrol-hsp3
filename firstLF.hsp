@@ -6,7 +6,7 @@
 
 
 //ポート番号(「USB Serial COM?」 の ?)
-#define ABDS_PORT 4
+#define ABDS_PORT 3
 
 
 *dmxinit
