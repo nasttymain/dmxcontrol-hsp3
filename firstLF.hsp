@@ -25,6 +25,9 @@
 
 
 *dmxinit
+	screen 0,360,360
+	title "Lights"
+	
 	dmx_initialize ABDS_PORT, 38400
 	dmxstat=stat
 	dmx_monitor DMX_RAW_MONITOR
@@ -34,8 +37,7 @@
 	dmx_setparam 65, 64
 	wait 25
 *init
-	screen 0,360,360
-	title "Lights"
+	gsel 0
 	font msgothic,20,FONT_BOLD
 	
 	dim led,3
@@ -65,7 +67,7 @@
 	sellist(0)=0,0,0,0
 	dim seli
 	
-	dim cpal,13,2
+	dim cpal,24,2
 	cpal(0,0)= $000000, $FF0000, $00FF00, $0000FF, $FFFFFF, $FF6688, $00FFFF, $FF0000, $00FF00, $0000FF, $FF5500, $FFFF00, $FF00FF
 	cpal(0,1)= $000000, $FF0000, $00FF00, $0000FF, $FFFFFF, $FF6688, $00FFFF, $FFFF00, $00FFFF, $FF00FF, $FF5500, $FFFF00, $FF00FF
 	cls 4
@@ -182,7 +184,7 @@
 			repeat 12
 				trafsig_t(cnt)=0
 			loop
-		}else{
+		}else:if blackout = 0{
 			led_t(0)=newc/65536
 			led_t(1)=newc\65536/256
 			led_t(2)=newc\256

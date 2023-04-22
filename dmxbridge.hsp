@@ -33,7 +33,7 @@
 	#deffunc dmx_monitor int avail_val
 		if monitor_avail != avail_val{
 			if avail_val = 1{
-				screen monitor_wid, 1280, monitor_ysize+16, SCREEN_TOOL+SCREEN_FIXEDSIZE
+				screen monitor_wid, 1280, monitor_ysize+16, SCREEN_TOOL+SCREEN_FIXEDSIZE, ginfo_wx2 + 32, ginfo_wy1
 				if status = 0{
 					title "raw monitor(COM " + cnum + ")"
 				}
