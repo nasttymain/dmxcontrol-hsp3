@@ -20,9 +20,9 @@
 		dim monitor_wid
 		monitor_wid = 28
 		dim monitor_chlist, 256
-		monitor_chlist(0) = 1, 2, 3, 65, 66, 67, 68, 69, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 111
+		monitor_chlist(0) = 1, 2, 3, -1, 65, 66, 67, 68, 69, -1, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 111
 		dim monitor_chcol, 256
-		monitor_chcol(0) = "r", "g", "b", "w", "r", "g", "b", "w", "r", "g", "b", "r", "g", "b", "r", "g", "b", "r", "g", "b", "w"
+		monitor_chcol(0) = "r", "g", "b", "", "w", "r", "g", "b", "w", "", "r", "g", "b", "r", "g", "b", "r", "g", "b", "r", "g", "b", "w"
 		dim monitor_xsize
 		monitor_xsize = 24
 		dim monitor_ysize
@@ -59,6 +59,9 @@
 					width cnt * 24, monitor_ysize
 					monitor_count = cnt
 					break
+				}
+				if monitor_chlist(cnt) = -1{
+					continue
 				}
 				pos monitor_xsize * cnt + 4, 12
 				rgbcolor $AAAAAA
