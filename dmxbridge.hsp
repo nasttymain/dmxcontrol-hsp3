@@ -35,7 +35,7 @@
 			if avail_val = 1{
 				screen monitor_wid, 1280, monitor_ysize+16, 0
 				if status = 0{
-					title "raw monitor"
+					title "raw monitor(COM " + cnum + ")"
 				}
 				if status = 1{
 					title "raw monitor(FAIL)"
