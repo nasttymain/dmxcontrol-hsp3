@@ -35,10 +35,10 @@
 			if avail_val = 1{
 				screen monitor_wid, 1280, monitor_ysize+16, SCREEN_TOOL+SCREEN_FIXEDSIZE, ginfo_wx2 + 32, ginfo_wy1
 				if status = 0{
-					title "raw monitor(COM " + cnum + ")"
+					title "raw param monitor(COM " + cnum + ")"
 				}
 				if status = 1{
-					title "raw monitor(FAIL)"
+					title "raw param monitor(FAIL)"
 				}
 			}
 			if avail_val = 0{

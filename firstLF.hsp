@@ -202,6 +202,16 @@
 					trafsig_t(3*cnt+2)=0
 				}
 			loop
+		}else:if blackout = 2{
+			repeat 3
+				led_t(cnt)=0
+			loop
+			repeat 12
+				trafsig_t(cnt)=0
+			loop
+			mirror_t(0)=newc/65536
+			mirror_t(1)=newc\65536/256
+			mirror_t(2)=newc\256
 		}
 		
 		repeat 3
@@ -274,8 +284,10 @@
 	color 240,240,240
 	if blackout=1{
 		mes "ALL AVL "+"LIGHTS OFF"
-	}else{
+	}else:if blackout = 0{
 		mes "ALL AVL "+"ENABLE"
+	}else:if blackout = 2{
+		mes "ALL AVL "+"MIRROR ONLY"
 	}
 	
 	pos 20,220
@@ -295,7 +307,11 @@
 *event_ky
 	if wparam=13{
 		//Enter blackout
-		blackout=(blackout+1)\2
+		blackout=(blackout + 1) \ 2
+	}
+	if wparam='0'{
+		//Enter blackout
+		blackout=2
 	}
 	if wparam='1'{
 		sellist_control 1
