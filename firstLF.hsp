@@ -12,6 +12,8 @@
 
 *dmxinit
 	dmx_initialize ABDS_PORT, 38400
+	dmx_monitor 1
+	gsel 0
 	dmxstat=stat
 	dmx_setparam 111, 255
 	dmx_setparam 70, 255
@@ -72,7 +74,8 @@
 	mes " ENTER      : BLACKOUT"
 	mes " UP/DN ARROW: SPEED"
 	mes " LF/RI ARROW: FADE"
-
+	
+	dmx_monitor_refresh
 	if comstatus = 0{
 		wait 300
 	}
@@ -269,6 +272,8 @@
 	
 	color 127,127,127
 	line 92,20,92,340
+	
+	dmx_monitor_refresh
 	
 	return
 *event_ky

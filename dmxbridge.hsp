@@ -13,7 +13,75 @@
 		#if DMXBRIDGE_DO_LOGMES = 1
 			logmes "[DMXBRIDGE] ComOpen(COM"+cnum+") : "+stat
 		#endif
+		dim monitor_avail
+		monitor_avail = 0
+		dim monitor_wid
+		monitor_wid = 28
+		dim monitor_chlist, 256
+		monitor_chlist(0) = 1, 2, 3, 65, 66, 67, 68, 69, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 111
+		dim monitor_chcol, 256
+		monitor_chcol(0) = "r", "g", "b", "w", "r", "g", "b", "w", "r", "g", "b", "r", "g", "b", "r", "g", "b", "r", "g", "b", "w"
+		dim monitor_xsize
+		monitor_xsize = 24
+		dim monitor_ysize
+		monitor_ysize = 256
+		dim monitor_count
+		monitor_count = 128
 	return stat
+	#deffunc dmx_monitor int avail_val
+		if monitor_avail != avail_val{
+			if avail_val = 1{
+				screen monitor_wid, 1280, monitor_ysize+16, 0
+				title "raw monitor"
+			}
+			if avail_val = 0{
+				screen monitor_wid, 1280, monitor_ysize+16, SCREEN_HIDE
+			}
+		}
+		monitor_avail = avail_val
+	return
+	#deffunc dmx_monitor_refresh
+		if monitor_avail = 1{
+			gsel monitor_wid
+			redraw 0
+			rgbcolor $000000
+			boxf
+			font msgothic, 12
+			repeat length(monitor_chlist)
+				if monitor_chlist(cnt) = 0{
+					width cnt * 24, monitor_ysize
+					monitor_count = cnt
+					break
+				}
+				pos monitor_xsize * cnt + 4, 12
+				rgbcolor $AAAAAA
+				mes monitor_chlist(cnt)
+
+				rgbcolor $444444
+				line monitor_xsize * cnt + 4 + 6, 24, monitor_xsize * cnt + 4 + 6, monitor_ysize - 24
+				
+				l = (monitor_ysize - 48) * param(monitor_chlist(cnt)) / 255
+				if monitor_chcol(cnt) = "w"{
+					rgbcolor $AAAAAA
+				}
+				if monitor_chcol(cnt) = "r"{
+					rgbcolor $AA0000
+				}
+				if monitor_chcol(cnt) = "g"{
+					rgbcolor $00AA00
+				}
+				if monitor_chcol(cnt) = "b"{
+					rgbcolor $0000AA
+				}
+				line monitor_xsize * cnt + 4 + 6, monitor_ysize - 24 - l, monitor_xsize * cnt + 4 + 6, monitor_ysize - 24
+				
+				pos monitor_xsize * cnt + 4, monitor_ysize - 18
+				rgbcolor $AAAAAA
+				mes param(monitor_chlist(cnt))
+			loop
+			redraw 1
+		}
+	return
 	#deffunc dmx_setparam int channel, int data
 		if channel<0 | channel>255{
 			return 1
