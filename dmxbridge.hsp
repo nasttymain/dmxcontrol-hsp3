@@ -84,6 +84,7 @@
 					rgbcolor $0000AA
 				}
 				line monitor_xsize * cnt + 4 + 6, monitor_ysize - 24 - l, monitor_xsize * cnt + 4 + 6, monitor_ysize - 24
+				circle monitor_xsize * cnt + 4 + 6 - 2, monitor_ysize - 24 - l - 2, monitor_xsize * cnt + 4 + 6 + 3, monitor_ysize - 24 - l + 3, 1
 				
 				pos monitor_xsize * cnt + 4, monitor_ysize - 18
 				rgbcolor $AAAAAA
