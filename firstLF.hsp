@@ -35,7 +35,7 @@
 	wait 25
 *init
 	screen 0,360,360
-	title ""
+	title "Lights"
 	font msgothic,20,FONT_BOLD
 	
 	dim led,3
@@ -360,6 +360,7 @@
 
 *draw_overlay
 	if ginfo_act = -1{
+		gsel 0
 		rgbcolor $404040
 		gmode 3, 32, 32, 232
 		grect ginfo_winx/2, ginfo_winy/2, 0.0, ginfo_winx*2/3 + 2, ginfo_winy*1/2 + 2
