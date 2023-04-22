@@ -1,12 +1,13 @@
 #include "dmxbridge.hsp"
 #include "midiapi23.hsp"
+//#include "keionlight_eachlight.hsp"
 #include "keionlight.hsp"
 #packopt hide 1
 #packopt name "FirstLF.exe"
 
 
 //ポート番号(「USB Serial COM?」 の ?)
-#define ABDS_PORT 3
+#define ABDS_PORT 5
 
 
 *dmxinit

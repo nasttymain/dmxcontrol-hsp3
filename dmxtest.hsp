@@ -5,7 +5,7 @@
 onexit goto *proc_quit
 mes "Target: Arduino Bridge with DMX Shield
 mes "Format: pppp cccc  aaaa aaaa  dddd dddd"
-comopen 4,"baud=38400 parity=N data=8 stop=1"
+comopen 5,"baud=38400 parity=N data=8 stop=1"
 if stat!=0{
 	mes "Com? "+stat
 	end

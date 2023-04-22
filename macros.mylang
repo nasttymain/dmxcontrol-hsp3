@@ -1,0 +1,29 @@
+:k-led{
+	@color
+	1 $color 65536 / .dmx-out
+	2 $color 65536 % 256 / .dmx-out
+	3 $color 256 % .dmx-out
+.}
+
+:k-sig{
+	@color @number
+	97 $number 3 * + $color 65536 / .dmx-out
+	98 $number 3 * + $color 65536 % 256 / .dmx-out
+	99 $number 3 * + $color 256 % .dmx-out
+	111 255 .dmx-out
+.}
+
+:k-sig-all{
+	@color
+	0 @k-sig-count [ ( $k-sig-count 4 = ) ?{ break }
+		$k-sig-count $color .k-sig
+	$k-sig-count 1 + @k-sig-count ]
+.}
+
+:k-mirror{
+	@color
+	66 $color 65536 / .dmx-out
+	67 $color 65536 % 256 / .dmx-out
+	68 $color 256 % .dmx-out
+	69 0 .dmx-out
+.}
