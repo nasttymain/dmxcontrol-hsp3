@@ -8,13 +8,15 @@
 
 //ポート番号(「USB Serial COM?」 の ?)
 #define ABDS_PORT 5
+//raw monitor(DMX各パラメータのモニター)の有効/無効
+#define DMX_RAW_MONITOR 1
 
 
 *dmxinit
 	dmx_initialize ABDS_PORT, 38400
-	dmx_monitor 1
-	gsel 0
 	dmxstat=stat
+	dmx_monitor DMX_RAW_MONITOR
+	gsel 0
 	dmx_setparam 111, 255
 	dmx_setparam 70, 255
 	dmx_setparam 65, 64

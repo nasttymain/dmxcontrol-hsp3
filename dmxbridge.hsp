@@ -9,7 +9,9 @@
 		br=baudrate
 		dim cs
 		dim param,256
+		dim status
 		comopen@ cnum,"baud="+br+" parity=N data=8 stop=1"
+		status = stat
 		#if DMXBRIDGE_DO_LOGMES = 1
 			logmes "[DMXBRIDGE] ComOpen(COM"+cnum+") : "+stat
 		#endif
@@ -27,12 +29,17 @@
 		monitor_ysize = 256
 		dim monitor_count
 		monitor_count = 128
-	return stat
+	return status
 	#deffunc dmx_monitor int avail_val
 		if monitor_avail != avail_val{
 			if avail_val = 1{
 				screen monitor_wid, 1280, monitor_ysize+16, 0
-				title "raw monitor"
+				if status = 0{
+					title "raw monitor"
+				}
+				if status = 1{
+					title "raw monitor(FAIL)"
+				}
 			}
 			if avail_val = 0{
 				screen monitor_wid, 1280, monitor_ysize+16, SCREEN_HIDE
