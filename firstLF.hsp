@@ -47,7 +47,7 @@
 	ddim transition_progress
 	transition_progress=1.0
 	ddim transition_speed
-	transition_speed=0.00064
+	transition_speed=0.00032
 	
 	dim comstatus
 	comstatus = 0
@@ -105,7 +105,7 @@
 	
 	//[ms]
 	dim pat_interval
-	pat_interval=500
+	pat_interval=400
 	ddim pat_offset
 	pat_offset=0.0
 	
