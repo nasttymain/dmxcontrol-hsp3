@@ -1,0 +1,54 @@
+#include "dmxbridge.hsp"
+
+*init
+	screen 0, 640, 480
+	dmx_initialize 5, 38400
+	mes stat
+	
+	dim addr, 7
+	addr(0) = 80, 83, 86, 89, 96, 99, 102, 105
+	
+	ddim ball_position
+	ball_position = 3.0
+	
+	ddim ball_speed
+	ball_speed = -0.4
+	
+	await 1000
+*start
+	
+	
+*main
+	repeat
+		redraw 0
+		rgbcolor $FFFFFF
+		boxf
+		
+		ball_position += ball_speed
+		
+		if ball_position <= 0.0{
+			ball_position = 0.0
+			ball_speed = absf(ball_speed)
+		}
+		
+		if ball_position >= 8.0{
+			ball_position = 8.0
+			ball_speed = -absf(ball_speed)
+		}
+		
+		pos 0,0
+		rgbcolor $000000
+		mes ball_position
+		
+		repeat 8
+			if limit(ball_position, 0, 7) = cnt{
+				dmx_setcolor addr(cnt), $FF8888
+			}else{
+				dmx_setcolor addr(cnt), $000000
+			}
+		loop
+		
+		redraw 1
+		await 33
+	loop
+stop

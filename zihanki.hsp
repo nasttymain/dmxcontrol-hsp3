@@ -21,15 +21,15 @@ repeat
 		repeat 4
 			if c>=4-cnt{
 				c=c-(4-cnt)
+				dmx_setparam 96+3*cnt,pat(1)
 				dmx_setparam 97+3*cnt,pat(1)
 				dmx_setparam 98+3*cnt,pat(1)
-				dmx_setparam 99+3*cnt,pat(1)
 				s(cnt)=1
 				
 			}else{
+				dmx_setparam 96+3*cnt,pat(0)
 				dmx_setparam 97+3*cnt,pat(0)
 				dmx_setparam 98+3*cnt,pat(0)
-				dmx_setparam 99+3*cnt,pat(0)
 				s(cnt)=0
 			}
 		loop
@@ -45,9 +45,9 @@ repeat
 			}
 		loop
 		repeat 4
+			dmx_setparam 96+3*cnt,pat(s(cnt))
 			dmx_setparam 97+3*cnt,pat(s(cnt))
 			dmx_setparam 98+3*cnt,pat(s(cnt))
-			dmx_setparam 99+3*cnt,pat(s(cnt))
 		loop
 	}
 	logmes ""+s(0)+" "+s(1)+" "+s(2)+" "+s(3)
