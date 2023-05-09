@@ -6,9 +6,13 @@
 	return 0
 	#deffunc set_trafsig int color_code, int pattern
 		repeat 4
-			dmx_setparam 97+cnt*3,( color_code & $FF0000 ) / 65536 * ( (pattern & 8 / powf(2,cnt) ) != 0)
-			dmx_setparam 98+cnt*3,( color_code & $00FF00 ) /   256 * ( (pattern & 8 / powf(2,cnt) ) != 0)
-			dmx_setparam 99+cnt*3,( color_code & $0000FF ) /     1 * ( (pattern & 8 / powf(2,cnt) ) != 0)
+			dmx_setparam 80+cnt*3,( color_code & $FF0000 ) / 65536 * ( (pattern & 8 / powf(2,cnt) ) != 0)
+			dmx_setparam 81+cnt*3,( color_code & $00FF00 ) /   256 * ( (pattern & 8 / powf(2,cnt) ) != 0)
+			dmx_setparam 82+cnt*3,( color_code & $0000FF ) /     1 * ( (pattern & 8 / powf(2,cnt) ) != 0)
+		
+			dmx_setparam 96+cnt*3,( color_code & $FF0000 ) / 65536 * ( (pattern & 8 / powf(2,cnt) ) != 0)
+			dmx_setparam 97+cnt*3,( color_code & $00FF00 ) /   256 * ( (pattern & 8 / powf(2,cnt) ) != 0)
+			dmx_setparam 98+cnt*3,( color_code & $0000FF ) /     1 * ( (pattern & 8 / powf(2,cnt) ) != 0)
 		loop
 		dmx_setparam 111,255
 	return 0

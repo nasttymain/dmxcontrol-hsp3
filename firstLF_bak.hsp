@@ -1,9 +1,9 @@
 #include "dmxbridge.hsp"
 #include "midiapi23.hsp"
 //#include "keionlight_eachlight.hsp"
-#include "keionlight.hsp"
+#include "keionlight_bak.hsp"
 #packopt hide 1
-#packopt name "FirstLF.exe"
+#packopt name "FirstLF_bak.exe"
 
 
 
@@ -32,7 +32,7 @@
 	dmxstat=stat
 	dmx_monitor DMX_RAW_MONITOR
 	gsel 0
-//	dmx_setparam 111, 255
+	dmx_setparam 111, 255
 	dmx_setparam 70, 255
 	dmx_setparam 65, 64
 	wait 25
@@ -144,18 +144,14 @@
 			set_led led(0)*65536+ led(1)*256+ led(2)
 			set_mirror mirror(0)*65536+ mirror(1)*256+ mirror(2)
 			repeat 12
-//				dmx_setparam 97+cnt, trafsig(cnt)
-				dmx_setparam 80+cnt, trafsig(cnt)
-				dmx_setparam 96+cnt, trafsig(cnt)
+				dmx_setparam 97+cnt, trafsig(cnt)
 			loop
 		}
 		if transition_progress=1.0{
 			set_led led(0)*65536+ led(1)*256+ led(2)
 			set_mirror mirror(0)*65536+ mirror(1)*256+ mirror(2)
 			repeat 12
-//				dmx_setparam 97+cnt, trafsig(cnt)
-				dmx_setparam 80+cnt, trafsig(cnt)
-				dmx_setparam 96+cnt, trafsig(cnt)
+				dmx_setparam 97+cnt, trafsig(cnt)
 			loop
 		}
 	}else{
