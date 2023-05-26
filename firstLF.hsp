@@ -21,7 +21,7 @@
 //------------------------------------------------------------------------------------------------------------------------------
 
 
-
+//TODO: ミラボだけ一色固定機能
 
 
 *dmxinit
@@ -66,6 +66,8 @@
 	dim sellist,4
 	sellist(0)=0,0,0,0
 	dim seli
+
+	dim absc, 4
 	
 	dim cpal,24,2
 	cpal(0,0)= $000000, $FF0000, $00FF00, $0000FF, $FFFFFF, $FF6688, $00FFFF, $FF0000, $00FF00, $0000FF, $FF5500, $FFFF00, $FF00FF
@@ -112,6 +114,19 @@
 	//送信タイミング制御
 	dim sendtimer
 	sendtimer=gettime(7)
+	
+	//信号パターン(ライト, バンク, パターン)
+	//0～9: 選択中のテーマカラー A～Z: 発色リストに入っているカラー a～z: 固定パレットのカラー
+	sdim sigpat, 4096, 8
+	sigpat(0) = "10101010 01010101"
+	sigpat(1) = "11111111 11111111"
+	sigpat(2) = "11001100 01100110 00110011 10011001"
+	sigpat(3) = "abcdabcd bcdebcde cdefcdef defgdefg efgaefga fgabfgab gabcgabc"
+	sdim sigpat_split, 256, 256
+	
+	dim  fixpal, 26
+	fixpal(0) = $FF0000, $FF5500, $FFFF00, $55FF00, $00FF55, $0000FF, $FF00FF
+	
 	
 *main
 	onkey gosub *event_ky
@@ -195,15 +210,27 @@
 			mirror_t(0)=newc/65536
 			mirror_t(1)=newc\65536/256
 			mirror_t(2)=newc\256
+			logmes flip
+			split sigpat(3), " ", sigpat_split
+			fs = stat
 			repeat 4
-				if (cnt\2)=flip\2{
+//				if (cnt\2)=flip\2{
+				c = peek(sigpat_split(flip\fs), cnt)
+				if       c = '1'{
+					//selected color
 					trafsig_t(3*cnt+0)=newc/65536
 					trafsig_t(3*cnt+1)=newc\65536/256
 					trafsig_t(3*cnt+2)=newc\256
-				}else{
+				}else:if c = '0'{
+					//black
 					trafsig_t(3*cnt+0)=0
 					trafsig_t(3*cnt+1)=0
 					trafsig_t(3*cnt+2)=0
+				}else:if c >= 'a' and c <= 'z'{
+					//fixed color
+					trafsig_t(3*cnt+0)=fixpal(c - 'a')/65536
+					trafsig_t(3*cnt+1)=fixpal(c - 'a')\65536/256
+					trafsig_t(3*cnt+2)=fixpal(c - 'a')\256
 				}
 			loop
 		}else:if blackout = 2{
