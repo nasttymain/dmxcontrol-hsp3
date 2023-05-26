@@ -27,7 +27,11 @@
 *dmxinit
 	screen 0,360,360
 	title "Lights"
+	screen 1, 360, 240, 0, GINFO_WX1, GINFO_WY2
+	title "Options"
+	cls 4
 	
+	gsel 0
 	dmx_initialize ABDS_PORT, 38400
 	dmxstat=stat
 	dmx_monitor DMX_RAW_MONITOR
@@ -98,7 +102,7 @@
 		wait 300
 	}
 	if comstatus = 1{
-		wait 500
+		wait 300
 	}
 	dim blackout
 	blackout=1
@@ -123,13 +127,26 @@
 	sigpat(2) = "11001100 01100110 00110011 10011001"
 	sigpat(3) = "abcdabcd bcdebcde cdefcdef defgdefg efgaefga fgabfgab gabcgabc"
 	sdim sigpat_split, 256, 256
+	dim sigpat_select
+	sigpat_select = 0
 	
 	dim  fixpal, 26
 	fixpal(0) = $FF0000, $FF5500, $FFFF00, $55FF00, $00FF55, $0000FF, $FF00FF
 	
+	dim override_avail
+	override_avail = 1
+	dim override_list, 4
+	override_list(0) = 0
+	dim override_pollinterval
+	override_pollinterval = 8
+	dim override_pollresend
+	override_pollresend = 0
 	
 *main
-	onkey gosub *event_ky
+	//onkey gosub *event_ky
+	gsel 0
+	oncmd gosub *event_ky, $0100
+	oncmd gosub *event_kyrelease, $0101
 	repeat
 		gosub *proc_pat
 		gosub *proc_trans
@@ -154,30 +171,66 @@
 		repeat 12
 			trafsig(cnt)=limit( transition_progress*trafsig_t(cnt)+(1.0-transition_progress)*trafsig_b(cnt) ,0,255)
 		loop
-		if (gettime(7)+10000-sendtimer)\10000>25{
-			sendtimer=gettime(7)
-			set_led led(0)*65536+ led(1)*256+ led(2)
-			set_mirror mirror(0)*65536+ mirror(1)*256+ mirror(2)
-			repeat 12
-//				dmx_setparam 97+cnt, trafsig(cnt)
-				dmx_setparam 80+cnt, trafsig(cnt)
-				dmx_setparam 96+cnt, trafsig(cnt)
-			loop
-		}
-		if transition_progress=1.0{
-			set_led led(0)*65536+ led(1)*256+ led(2)
-			set_mirror mirror(0)*65536+ mirror(1)*256+ mirror(2)
-			repeat 12
-//				dmx_setparam 97+cnt, trafsig(cnt)
-				dmx_setparam 80+cnt, trafsig(cnt)
-				dmx_setparam 96+cnt, trafsig(cnt)
-			loop
+		
+		override_avail = 0
+		repeat 4
+			if override_list(cnt) != 0{
+				override_avail = 1
+			}
+		loop
+		
+		if override_avail = 0{
+			if transition_progress=1.0{
+				set_led led(0)*65536+ led(1)*256+ led(2)
+				set_mirror mirror(0)*65536+ mirror(1)*256+ mirror(2)
+				repeat 12
+					dmx_setparam 80+cnt, trafsig(cnt)
+					dmx_setparam 96+cnt, trafsig(cnt)
+				loop
+			}else:if (gettime(7)+10000-sendtimer)\10000>25{
+				sendtimer=gettime(7)
+				set_led led(0)*65536+ led(1)*256+ led(2)
+				set_mirror mirror(0)*65536+ mirror(1)*256+ mirror(2)
+				repeat 12
+					dmx_setparam 80+cnt, trafsig(cnt)
+					dmx_setparam 96+cnt, trafsig(cnt)
+				loop
+			}
+		}else{
+			//Override
+			if override_pollresend >= override_pollinterval{
+				logmes "send" + override_pollresend
+				override_pollresend = 0
+				repeat length(override_list)
+					if override_list(cnt) = ';'{
+						set_led 0
+						set_mirror 0
+						repeat 12
+							dmx_setparam 80+cnt, 0
+							dmx_setparam 96+cnt, 0
+						loop
+						repeat 3
+							mirror(cnt) = 0
+							mirror_t(cnt) = 0
+							led(cnt) = 0
+							led_t(cnt) = 0
+						loop
+						repeat 12
+							trafsig(cnt) = 0
+							trafsig_t(cnt) = 0
+						loop
+						transition_progress = 1.0
+					}
+				loop
+			}
 		}
 	}else{
 	}
+	override_pollresend += 1
 	return
 *proc_pat
-	if valueOfTimer()+pat_offset>pat_interval{
+	if valueOfTimer()+pat_offset>pat_interval or force_next_pattern = 1{
+		force_next_pattern = 0
 		pat_offset=(valueOfTimer()+pat_offset)\pat_interval
 		//next pattern
 		
@@ -211,7 +264,7 @@
 			mirror_t(1)=newc\65536/256
 			mirror_t(2)=newc\256
 			logmes flip
-			split sigpat(3), " ", sigpat_split
+			split sigpat(sigpat_select), " ", sigpat_split
 			fs = stat
 			repeat 4
 //				if (cnt\2)=flip\2{
@@ -259,10 +312,11 @@
 	}
 	return
 *draw_ui
+	gsel 0
 	color 64,64,64
 	boxf
 	
-	font msgothic,20
+	font msgothic,20, FONT_BOLD
 	
 	color 127,127,127
 	boxf 10,10,350,350
@@ -293,10 +347,30 @@
 	mes "SEQ     ",1
 	repeat 4
 		if sellist(cnt)!=0{
+			x = GINFO_CX
+			y = GINFO_CY
+			color 32, 32, 32
+			boxf x -  1, y -  1, x + 21, y + 21
+			rgbcolor cpal(sellist(cnt), 0)
+			boxf x +  0, y +  0, x + 20, y + 10
+			rgbcolor cpal(sellist(cnt), 1)
+			boxf x +  0, y + 10, x + 20, y + 20
+			if cpal(sellist(cnt), 0) != cpal(sellist(cnt), 1){
+				color 64, 64, 64
+				line x +  0, y + 10, x + 20, y + 10
+			}
+			pos x - 1, y - 1
+			font MSGOTHIC, 22, FONT_BOLD
+			color 0, 0, 0
+			mes ""+strf("%2d",sellist(cnt))+" ",1
+			pos x - 0, y - 0
+			font MSGOTHIC, 20, FONT_BOLD
+			color 240, 240, 240
 			mes ""+strf("%2d",sellist(cnt))+" ",1
 		}
 	loop
-	pos 220,140
+	pos 240,140
+	color 240, 240, 240
 	mes "("+strf("%2d",sellist(seli)),1
 	repeat 4
 		if cnt=flip\4{
@@ -332,9 +406,35 @@
 	color 127,127,127
 	line 92,20,92,340
 	
+	
+	
+	gsel 1
+	font MSGOTHIC, 20, FONT_BOLD
+	redraw 0
+	color 64,64,64
+	boxf
+	color 240, 240, 240
+	pos 0,0
+	mes "OVERRIDE:"
+	repeat length(override_list)
+		if override_list(cnt) = ';'{
+			pos 10, GINFO_CY
+			mes "; IMMEDIATE BLACK & ALIGN BEAT"
+		}
+	loop
+	pos 0, 120
+	mes "SIG PATTERN: "
+	pos 10, 140
+	mes sigpat_select
+	redraw 1
+	
+	
 	dmx_monitor_refresh
 	
 	return
+
+
+
 *event_ky
 	if wparam=13{
 		//Enter blackout
@@ -403,12 +503,52 @@
 	if wparam=39{
 		transition_speed*=2
 	}
+	if wparam = 189{
+		//-
+		sigpat_select = 0
+	}
+	if wparam = 222{
+		//^
+		sigpat_select = 1
+	}
+	if wparam = 220{
+		// \
+		sigpat_select = 2
+	}
+	if wparam = 187{
+		// ;
+		repeat length(override_list)
+			if override_list(cnt) = ';' or override_list(cnt) = 0{
+				override_list(cnt) = ';'
+				break
+			}
+		loop
+	}
 	pat_interval=limit(pat_interval,20,3000)
 	transition_speed=limitf(transition_speed, 0.00001, 0.16384)
 	return
 
+
+
+*event_kyrelease
+	if wparam = 187{
+		repeat length(override_list)
+			if override_list(cnt) = ';'{
+				override_list(cnt) = 0
+			}
+		loop
+		resettimer
+		pat_offset = 0
+		flip = 3
+		transition_progress=0.0
+		force_next_pattern = 1
+	}
+	return
+
+
+
 *draw_overlay
-	if ginfo_act = -1{
+	if ginfo_act != 0{
 		gsel 0
 		rgbcolor $404040
 		gmode 3, 32, 32, 232
