@@ -27,7 +27,7 @@
 *dmxinit
 	screen 0,360,360
 	title "Lights"
-	screen 1, 360, 240, 0, GINFO_WX1, GINFO_WY2
+	screen 1, 360, 240, SCREEN_TOOL, GINFO_WX1, GINFO_WY2
 	title "Options"
 	cls 4
 	
