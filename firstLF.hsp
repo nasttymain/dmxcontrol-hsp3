@@ -125,7 +125,8 @@
 	sigpat(0) = "10101010 01010101"
 	sigpat(1) = "11111111 11111111"
 	sigpat(2) = "11001100 01100110 00110011 10011001"
-	sigpat(3) = "abcdabcd bcdebcde cdefcdef defgdefg efgaefga fgabfgab gabcgabc"
+	sigpat(3) = "11111111 00000000"
+	sigpat(4) = "abcdabcd bcdebcde cdefcdef defgdefg efgaefga fgabfgab gabcgabc"
 	sdim sigpat_split, 256, 256
 	dim sigpat_select
 	sigpat_select = 0
@@ -441,7 +442,7 @@
 		blackout=(blackout + 1) \ 2
 	}
 	if wparam='0'{
-		//Enter blackout
+		//Only Mirror
 		blackout=2
 	}
 	if wparam='1'{
@@ -514,6 +515,14 @@
 	if wparam = 220{
 		// \
 		sigpat_select = 2
+	}
+	if wparam = 192{
+		//@
+		sigpat_select = 3
+	}
+	if wparam = 219{
+		//[
+		sigpat_select = 4
 	}
 	if wparam = 187{
 		// ;
