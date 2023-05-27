@@ -183,13 +183,15 @@
 		
 		if override_avail = 0{
 			if transition_progress=1.0{
+				//logmes "SEND NORM"
 				set_led led(0)*65536+ led(1)*256+ led(2)
 				set_mirror mirror(0)*65536+ mirror(1)*256+ mirror(2)
 				repeat 12
 					dmx_setparam 80+cnt, trafsig(cnt)
 					dmx_setparam 96+cnt, trafsig(cnt)
 				loop
-			}else:if (gettime(7)+10000-sendtimer)\10000>25{
+			}else:if (gettime(7)+10000-sendtimer)\10000>40{
+				//logmes "SEND NORM"
 				sendtimer=gettime(7)
 				set_led led(0)*65536+ led(1)*256+ led(2)
 				set_mirror mirror(0)*65536+ mirror(1)*256+ mirror(2)
@@ -533,6 +535,22 @@
 				break
 			}
 		loop
+	}
+	if wparam = 112{
+		//F1 Double Tempo
+		pat_interval /= 2
+	}
+	if wparam = 113{
+		//F1 Half Tempo
+		pat_interval *= 2
+	}
+	if wparam = 190{
+		// .
+		resettimer
+		pat_offset = 0
+		flip = 3
+		transition_progress=0.0
+		force_next_pattern = 1
 	}
 	pat_interval=limit(pat_interval,20,3000)
 	transition_speed=limitf(transition_speed, 0.00001, 0.16384)
