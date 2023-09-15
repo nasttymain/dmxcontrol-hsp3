@@ -7,6 +7,9 @@
 
 
 
+#uselib "user32.dll"
+#func GetWindowLong "GetWindowLongA" int,int 
+#func SetWindowLong "SetWindowLongA" int,int,int
 
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -25,16 +28,33 @@
 
 
 *dmxinit
-	screen 0,360,360
+	screen 16, GINFO_DISPX, GINFO_DISPY
+	width 960, 540
+	font msgothic,20,FONT_BOLD
+	GetWindowLong hwnd,-16
+	SetWindowLong hwnd,-16,stat|$10000|$40000
+	gsel 16, 1
+	oncmd gosub *wm_size, $0005
+	
+	screen 0, 960, 540, SCREEN_HIDE
 	title "Lights"
-	screen 1, 360, 240, SCREEN_FIXEDSIZE, GINFO_WX1, GINFO_WY2
+	screen 1, 360, 240, SCREEN_FIXEDSIZE + SCREEN_HIDE, GINFO_WX1, GINFO_WY2
 	title "Options"
 	cls 4
 	
 	gsel 0
 	dmx_initialize ABDS_PORT, 38400
-	dmxstat=stat
+	dmxstat = stat
+	
+	dim monitor_id
+	dim monitor_xs
+	dim monitor_ys
 	dmx_monitor DMX_RAW_MONITOR
+	monitor_id = stat
+	gsel monitor_id, -1
+	monitor_xs = GINFO_WINX
+	monitor_ys = GINFO_WINY
+	
 	gsel 0
 //	dmx_setparam 111, 255
 	dmx_setparam 70, 255
@@ -98,6 +118,7 @@
 	mes " LF/RI ARROW: FADE"
 	
 	dmx_monitor_refresh
+	gosub *draw_combine
 	if comstatus = 0{
 		wait 300
 	}
@@ -143,20 +164,30 @@
 	dim override_pollresend
 	override_pollresend = 0
 	
+	
+	gsel 16
+	if comstatus = 1{
+		title "(NO BRIDGE CONNECTION)"
+	}
 *main
 	//onkey gosub *event_ky
-	gsel 0
+//	gsel 0
+	gsel 16
 	oncmd gosub *event_ky, $0100
 	oncmd gosub *event_kyrelease, $0101
 	oncmd gosub *wm_activate, $0006
 	repeat
 		gosub *proc_pat
 		gosub *proc_trans
-		gsel 0
+		
+		gsel 16
 		redraw 0
+		
 		gosub *draw_ui
+		gosub *draw_combine
 		gosub *draw_overlay
-		gsel 0
+		
+		gsel 16
 		redraw 1
 		await 4
 	loop
@@ -576,8 +607,8 @@
 
 
 *draw_overlay
-	if ginfo_act != 0{
-		gsel 0
+	if ginfo_act != 16{
+		gsel 16
 		rgbcolor $404040
 		gmode 3, 32, 32, 232
 		grect ginfo_winx/2, ginfo_winy/2, 0.0, ginfo_winx*2/3 + 2, ginfo_winy*1/2 + 2
@@ -622,6 +653,52 @@ return
 
 *wm_activate
 	if (wparam & $FFFF) = 1 or (wparam & $FFFF) = 2{
-		gsel 0, 1
+		gsel 16, 1
 	}
+	return
+
+
+*wm_size
+	logmes (lparam \ 65536)
+	logmes (lparam / 65536)
+	return
+
+*draw_combine
+	gsel 16
+	
+	layout = 0
+	if GINFO_WINY >= (20 + 360 + 40 + 240 + 20){
+		layout |= 1
+	}
+	if GINFO_WINX <= (20 + 360 + 40){
+		layout |= 2
+	}
+	
+	rgbcolor $808080
+	boxf
+	
+	pos 20, 20
+	gcopy 0, 0, 0, 360, 360
+	
+	if (layout & 1) = 1{
+		//‚½‚Ä
+		pos 20, 20 + 360 + 40
+	}else{
+		//‚æ‚±
+		pos 20 + 360 + 40, 20
+	}
+	gcopy 1, 0, 0, 360, 240
+	
+	if (layout & 1) = 1{
+		//‚½‚Ä
+		pos 20 + 360 + 40, 20
+	}else{
+		//‚æ‚±
+		pos 20 + 360 + 40, 20 + 240 + 40
+	}
+	if (layout & 2) = 2{
+		//‚º‚ñ‚Ô‚½‚Ä
+		pos 20, 20 + 360 + 40 + 240 + 40
+	}
+	gcopy monitor_id, 0, 0, monitor_xs, monitor_ys
 	return
