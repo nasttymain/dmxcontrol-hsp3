@@ -29,7 +29,7 @@
 
 *dmxinit
 	screen 16, GINFO_DISPX, GINFO_DISPY
-	width 960, 540
+	width GINFO_DISPX / 2, GINFO_DISPY / 3 * 2, GINFO_DISPX / 4, GINFO_DISPY / 6
 	font msgothic,20,FONT_BOLD
 	GetWindowLong hwnd,-16
 	SetWindowLong hwnd,-16,stat|$10000|$40000
@@ -425,7 +425,7 @@
 	if blackout=1{
 		mes "ALL AVL "+"LIGHTS OFF"
 	}else:if blackout = 0{
-		mes "ALL AVL "+"ENABLE"
+		mes "ALL AVL "+"ON"
 	}else:if blackout = 2{
 		mes "ALL AVL "+"MIRROR ONLY"
 	}
@@ -670,7 +670,7 @@ return
 	if GINFO_WINY >= (20 + 360 + 40 + 240 + 20){
 		layout |= 1
 	}
-	if GINFO_WINX <= (20 + 360 + 40){
+	if GINFO_WINY >= (20 + 360 + 40 + 240 + 20 + monitor_ys + 20){
 		layout |= 2
 	}
 	
@@ -689,15 +689,19 @@ return
 	}
 	gcopy 1, 0, 0, 360, 240
 	
-	if (layout & 1) = 1{
+	if layout = 1{
 		//‚½‚Ä
 		pos 20 + 360 + 40, 20
-	}else{
+	}
+	if layout = 0{
 		//‚æ‚±
 		pos 20 + 360 + 40, 20 + 240 + 40
 	}
-	if (layout & 2) = 2{
+	if layout = 2{
 		//‚º‚ñ‚Ô‚½‚Ä
+		pos 20, 20 + 360 + 40
+	}
+	if layout = 3{
 		pos 20, 20 + 360 + 40 + 240 + 40
 	}
 	gcopy monitor_id, 0, 0, monitor_xs, monitor_ys
