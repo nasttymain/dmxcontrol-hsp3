@@ -16,7 +16,8 @@
 //------------------------------------------------------------------------------------------------------------------------------
 
 //ポート番号(「USB Serial COM?」 の ?)
-#define ABDS_PORT 5
+//#define ABDS_PORT 5
+//上パラメータは、設定ファイルに移動しました
 //raw monitor(DMX各パラメータのモニター)の有効/無効
 #define DMX_RAW_MONITOR 1
 
@@ -28,6 +29,32 @@
 
 
 *dmxinit
+	dim ABDS_PORT
+	ABDS_PORT = 3
+	
+	sdim set, 4096
+	sdim sol, 256
+	sdim sel, 256, 16
+	exist "manifest"
+	if strsize != -1{
+		bload "manifest", set
+		notesel set
+		repeat notemax
+			notesel set
+			noteget sol, cnt
+			sol = getpath(sol, 16)
+			sol = strtrim(sol, 0, ' ')
+			repeat 24
+				strrep sol, "  ", " "
+				if stat = 0: break
+			loop
+			split sol, " ", sel
+			if sel(0) = "com"{
+				ABDS_PORT = int(sel(1))
+			}
+		loop
+	}
+	
 	screen 16, GINFO_DISPX, GINFO_DISPY
 	width GINFO_DISPX / 2, GINFO_DISPY / 3 * 2, GINFO_DISPX / 4, GINFO_DISPY / 6
 	font msgothic,20,FONT_BOLD
@@ -94,7 +121,7 @@
 	dim absc, 4
 	
 	dim cpal,24,2
-	cpal(0,0)= $000000, $FF0000, $00FF00, $0000FF, $FFFFFF, $FF6688, $00FFFF, $FFFF00, $00FF00, $0000FF, $FF5500, $FFFF00, $FF00FF
+	cpal(0,0)= $000000, $FF0000, $00FF00, $0000FF, $FFFFFF, $FF6688, $00FFFF, $FF0000, $00FFFF, $0000FF, $FF5500, $FFFF00, $FF00FF
 	cpal(0,1)= $000000, $FF0000, $00FF00, $0000FF, $FFFFFF, $FF6688, $00FFFF, $FFFF00, $00FFFF, $FF00FF, $FF5500, $FFFF00, $FF00FF
 	cls 4
 	repeat length(cpal)-1
@@ -107,7 +134,7 @@
 	if dmxstat!=0{
 		font msgothic,20,FONT_BOLD
 		color 255,64,64
-		mes "[WARN] DMX STATUS: FAIL("+dmxstat+")"
+		mes "FAILED TO INIT DMX at Port " + ABDS_PORT + " ("+dmxstat+")"
 		comstatus = 1
 	}
 	
