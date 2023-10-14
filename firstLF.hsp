@@ -203,6 +203,8 @@
 	oncmd gosub *event_ky, $0100
 	oncmd gosub *event_kyrelease, $0101
 	oncmd gosub *wm_activate, $0006
+	dim loopcount
+	loopcount = 0
 	repeat
 		gosub *proc_pat
 		gosub *proc_trans
@@ -217,6 +219,7 @@
 		gsel 16
 		redraw 1
 		await 3
+		loopcount += 1
 	loop
 *proc_trans
 	if transition_progress!=1.0{
@@ -319,9 +322,23 @@
 				trafsig_t(cnt)=0
 			loop
 		}else:if blackout = 0{
-			led_t(0)=newc/65536
-			led_t(1)=newc\65536/256
-			led_t(2)=newc\256
+			if sigpat_select = 3{
+				//sigpatÇ™3ÇÃÇ∆Ç´ÇÕÅALEDÇ‡ìØéûÇ…ì_ñ≈Ç≥ÇπÇÈ
+				if flip \ 2 = 0{
+					led_t(0)=newc/65536
+					led_t(1)=newc\65536/256
+					led_t(2)=newc\256
+				}else{
+					led_t(0)=0
+					led_t(1)=0
+					led_t(2)=0
+				}
+				
+			}else{
+				led_t(0)=newc/65536
+				led_t(1)=newc\65536/256
+				led_t(2)=newc\256
+			}
 			mirror_t(0)=newc/65536
 			mirror_t(1)=newc\65536/256
 			mirror_t(2)=newc\256
