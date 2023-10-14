@@ -328,20 +328,26 @@
 					led_t(0)=newc/65536
 					led_t(1)=newc\65536/256
 					led_t(2)=newc\256
+					mirror_t(0)=newc/65536
+					mirror_t(1)=newc\65536/256
+					mirror_t(2)=newc\256
 				}else{
 					led_t(0)=0
 					led_t(1)=0
 					led_t(2)=0
+					mirror_t(0)=newc/65536
+					mirror_t(1)=newc\65536/256
+					mirror_t(2)=newc\256
 				}
 				
 			}else{
 				led_t(0)=newc/65536
 				led_t(1)=newc\65536/256
 				led_t(2)=newc\256
+				mirror_t(0)=newc/65536
+				mirror_t(1)=newc\65536/256
+				mirror_t(2)=newc\256
 			}
-			mirror_t(0)=newc/65536
-			mirror_t(1)=newc\65536/256
-			mirror_t(2)=newc\256
 			//logmes flip
 			split sigpat(sigpat_select), " ", sigpat_split
 			fs = stat
