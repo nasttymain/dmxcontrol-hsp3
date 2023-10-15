@@ -187,7 +187,7 @@
 	dim override_list, 4
 	override_list(0) = 0
 	dim override_pollinterval
-	override_pollinterval = 8
+	override_pollinterval = 3
 	dim override_pollresend
 	override_pollresend = 0
 	
@@ -219,7 +219,7 @@
 		gsel 16
 		redraw 1
 		await 3
-		loopcount += 1
+		loopcount += 3
 	loop
 *proc_trans
 	if transition_progress!=1.0{
@@ -261,35 +261,76 @@
 					dmx_setparam 96+cnt, trafsig(cnt)
 				loop
 			}
-		}else{
-			//Override
-			if override_pollresend >= override_pollinterval{
-				//logmes "send" + override_pollresend
-				override_pollresend = 0
-				repeat length(override_list)
-					if override_list(cnt) = ';'{
-						set_led 0
-						set_mirror 0
-						repeat 12
-							dmx_setparam 80+cnt, 0
-							dmx_setparam 96+cnt, 0
-						loop
-						repeat 3
-							mirror(cnt) = 0
-							mirror_t(cnt) = 0
-							led(cnt) = 0
-							led_t(cnt) = 0
-						loop
-						repeat 12
-							trafsig(cnt) = 0
-							trafsig_t(cnt) = 0
-						loop
-						transition_progress = 1.0
-					}
-				loop
-			}
 		}
 	}else{
+	}
+
+	if override_avail = 1{
+		//Override
+		if override_pollresend >= override_pollinterval{
+			//logmes "send" + override_pollresend
+			override_pollresend = 0
+			repeat length(override_list)
+				if override_list(cnt) = ';'{
+					//IMD BLACK ALIGN BEAT
+					set_led 0
+					set_mirror 0
+					repeat 12
+						dmx_setparam 80+cnt, 0
+						dmx_setparam 96+cnt, 0
+					loop
+					repeat 3
+						mirror(cnt) = 0
+						mirror_t(cnt) = 0
+						led(cnt) = 0
+						led_t(cnt) = 0
+					loop
+					repeat 12
+						trafsig(cnt) = 0
+						trafsig_t(cnt) = 0
+					loop
+					transition_progress = 1.0
+				}
+				if override_list(cnt) = 'J'{
+					//FLASH! then ALIGN BEAT
+						flash_timepoint += 1
+						if flash_timepoint \ 2 = 0{
+							repeat 12
+								dmx_setparam 80+cnt, 0
+								dmx_setparam 96+cnt, 0
+							loop
+							repeat 3
+								mirror(cnt) = 0
+								mirror_t(cnt) = 0
+								led(cnt) = 0
+								led_t(cnt) = 0
+							loop
+							repeat 12
+								trafsig(cnt) = 0
+								trafsig_t(cnt) = 0
+							loop
+							transition_progress = 1.0
+						}else{
+							repeat 12
+								dmx_setparam 80+cnt, 255
+								dmx_setparam 96+cnt, 255
+							loop
+							repeat 3
+								mirror(cnt) = 255
+								mirror_t(cnt) = 255
+								led(cnt) = 255
+								led_t(cnt) = 255
+							loop
+							repeat 12
+								trafsig(cnt) = 255
+								trafsig_t(cnt) = 255
+							loop
+							transition_progress = 1.0
+						}
+					
+				}
+			loop
+		}
 	}
 	override_pollresend += 1
 	return
@@ -506,6 +547,10 @@
 			pos 10, GINFO_CY
 			mes "; IMMEDIATE BLACK & ALIGN BEAT"
 		}
+		if override_list(cnt) = 'J'{
+			pos 10, GINFO_CY
+			mes "; FLASH!"
+		}
 	loop
 	pos 0, 120
 	mes "SIG PATTERN: "
@@ -633,6 +678,15 @@
 		transition_progress=0.0
 		force_next_pattern = 1
 	}
+	if wparam = 74{
+		// J FLASH
+		repeat length(override_list)
+			if override_list(cnt) = 'J' or override_list(cnt) = 0{
+				override_list(cnt) = 'J'
+				break
+			}
+		loop
+	}
 	pat_interval=limit(pat_interval,20,3000)
 	transition_speed=limitf(transition_speed, 0.00001, 0.16384)
 	return
@@ -643,6 +697,18 @@
 	if wparam = 187{
 		repeat length(override_list)
 			if override_list(cnt) = ';'{
+				override_list(cnt) = 0
+			}
+		loop
+		resettimer
+		pat_offset = 0
+		flip = 3
+		transition_progress=0.0
+		force_next_pattern = 1
+	}
+	if wparam = 74{
+		repeat length(override_list)
+			if override_list(cnt) = 'J'{
 				override_list(cnt) = 0
 			}
 		loop
