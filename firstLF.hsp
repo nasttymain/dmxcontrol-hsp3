@@ -99,6 +99,8 @@
 	transition_progress=1.0
 	ddim transition_speed
 	transition_speed=0.00032
+	ddim transition_progress_tsig
+	transition_progress_tsig = 1.0
 	
 	dim comstatus
 	comstatus = 0
@@ -229,10 +231,27 @@
 		}
 		repeat 3
 			led(cnt)=limit( transition_progress*led_t(cnt)+(1.0-transition_progress)*led_b(cnt) ,0,255)
+		loop
+		repeat 3
 			mirror(cnt)=limit( transition_progress*mirror_t(cnt)+(1.0-transition_progress)*mirror_b(cnt) ,0,255)
 		loop
-		repeat 12
-			trafsig(cnt)=limit( transition_progress*trafsig_t(cnt)+(1.0-transition_progress)*trafsig_b(cnt) ,0,255)
+		repeat 4
+			lbcnt = cnt
+			if trafsig_t(lbcnt * 3 + 0) + trafsig_t(lbcnt * 3 + 1) + trafsig_t(lbcnt * 3 + 2) = 0{
+				//黒ターゲット
+				transition_progress_tsig = transition_progress
+			}else{
+				//黒以外ターゲット
+				if transition_progress = 0.0{
+					transition_progress_tsig = 0.0
+				}else{
+					transition_progress_tsig = sqrt(transition_progress)
+				}
+			}
+			repeat 3
+				clcnt = cnt
+				trafsig(lbcnt * 3 + clcnt)=limit( transition_progress_tsig * trafsig_t(lbcnt * 3 + clcnt) + (1.0 - transition_progress_tsig) * trafsig_b(lbcnt * 3 + clcnt) , 0, 255)
+			loop
 		loop
 		
 		override_avail = 0
